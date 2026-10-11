@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrightFunded - Complete Interactive Research Dashboard</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #334155;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        [data-theme="light"] {
+            --bg-dark: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 { color: var(--text-main); }
+        h1 { font-size: 1.8rem; font-weight: 700; }
+        h2 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+
+        .badge {
+            background-color: var(--accent);
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .card.active {
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .tab:hover { background-color: var(--border); }
+        .tab.active { background-color: var(--accent); color: white; border-color: var(--accent); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { background-color: rgba(0,0,0,0.2); font-weight: 600; color: var(--text-muted); }
+
+        .calculator {
+            background-color: var(--bg-card);
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            border-radius: 4px;
+        }
+
+        .result-box {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid var(--accent);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .result-box h3 { color: var(--accent); font-size: 2rem; margin-bottom: 0.5rem; }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+
+        .consequence-hard { color: var(--danger); font-weight: bold; }
+        .consequence-soft { color: var(--warning); font-weight: bold; }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Utility */
+        .text-muted { color: var(--text-muted); }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-2 { margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h1>BrightFunded Research Dashboard</h1>
+            <span class="text-muted">Updated: 2026-10-11</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Light/Dark</button>
+    </header>
+
+    <div class="container">
+
+        <section id="overview" class="mb-2">
+            <h2>Company Overview</h2>
+            <div class="card">
+                <p><strong>Legal Entity:</strong> BrightFunded Ltd / BrightFunded LLC</p>
+                <p><strong>Country:</strong> Dubai (UAE)</p>
+                <p><strong>Website:</strong> <a href="https://brightfunded.com/" target="_blank" style="color: var(--accent);">https://brightfunded.com/</a></p>
+                <p><strong>Supported Platforms:</strong> cTrader, MT5, BrightFunded Platform (DxTrade)</p>
+                <p><strong>Instruments:</strong> FX, Indices, Metals, Crypto, Energy</p>
+            </div>
+        </section>
+
+        <section id="programs">
+            <h2>Select Program</h2>
+            <div class="grid" id="program-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <section id="account-sizes">
+            <h2>Select Account Size</h2>
+            <div class="grid" id="size-grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+        <section id="rules-summary">
+            <h2>Rules & Requirements</h2>
+            <div class="flex-between mb-2">
+                <p class="text-muted">View requirements in Percentage (%) or Dollar Amount ($)</p>
+                <button class="btn" onclick="toggleUnit()" id="unit-toggle">Show in $</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Phase 1</th>
+                        <th>Phase 2</th>
+                        <th>Funded</th>
+                    </tr>
+                </thead>
+                <tbody id="rules-table-body">
+                    <!-- Injected via JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="coupons" class="mb-2">
+            <h2>Active Coupons & Promotions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Discount</th>
+                        <th>Eligible Models</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="coupons-table-body">
+                    <!-- Injected via JS -->
+                </tbody>
+            </table>
+        </section>
+
+        <section id="calculators" class="mt-2">
+            <h2>Risk & Payout Calculators</h2>
+
+            <div class="grid">
+                <div class="calculator">
+                    <h3>Drawdown Risk Calculator</h3>
+                    <p class="text-muted mb-2">Calculate your daily loss limits.</p>
+
+                    <div class="input-group">
+                        <label>Starting Day Balance ($)</label>
+                        <input type="number" id="calc-start-balance" value="100000" oninput="calculateRisk()">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Current Equity ($)</label>
+                        <input type="number" id="calc-current-equity" value="100000" oninput="calculateRisk()">
+                    </div>
+
+                    <div class="result-box">
+                        <h4>Daily Loss Limit</h4>
+                        <h3 id="calc-daily-limit">$0</h3>
+                        <p class="text-muted" id="calc-buffer">Buffer remaining: $0</p>
+                    </div>
+                </div>
+
+                <div class="calculator">
+                    <h3>Payout Calculator</h3>
+                    <p class="text-muted mb-2">Estimate your net payout.</p>
+
+                    <div class="input-group">
+                        <label>Gross Eligible Profit ($)</label>
+                        <input type="number" id="calc-profit" value="5000" oninput="calculatePayout()">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Profit Split (%)</label>
+                        <input type="number" id="calc-split" value="80" max="100" oninput="calculatePayout()">
+                    </div>
+
+                    <div class="result-box">
+                        <h4>Estimated Trader Payout</h4>
+                        <h3 id="calc-net-payout">$0</h3>
+                        <p class="text-muted">Firm Share: <span id="calc-firm-share">$0</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="critical-rules">
+            <h2>Critical Breach Rules</h2>
+            <div class="grid">
+                <!-- Injected via JS -->
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const rawData = {"firm": {"name": "BrightFunded", "legalName": "BrightFunded Ltd / BrightFunded LLC", "website": "https://brightfunded.com/", "country": "Dubai (UAE)", "description": "Top-Rated Prop Trading Experiences offering 1-Step and 2-Step funding up to $400K with up to 100% profit split."}, "programs": [{"id": "1-step", "name": "1-Step", "description": "One-step evaluation", "phases": 1, "drawdownType": "Trailing", "payoutFrequency": "24-Hour Guaranteed (Weekly available)", "availability": "Available", "restrictions": "5-min News Trading Restriction"}, {"id": "2-step-bright", "name": "2-Step Bright", "description": "Two-step evaluation focused on higher risk/reward", "phases": 2, "drawdownType": "Static/Daily", "payoutFrequency": "24-Hour Guaranteed (Weekly available)", "availability": "Available", "restrictions": "5-min News Trading Restriction"}, {"id": "2-step-classic", "name": "2-Step Classic", "description": "Two-step evaluation with standard industry rules", "phases": 2, "drawdownType": "Static/Daily", "payoutFrequency": "24-Hour Guaranteed (Weekly available)", "availability": "Available", "restrictions": "5-min News Trading Restriction"}], "accountSizes": [5000, 10000, 25000, 50000, 100000, 200000], "prices": {"5000": {"1-step": 47, "2-step-bright": 47, "2-step-classic": 47}, "10000": {"1-step": 87, "2-step-bright": 87, "2-step-classic": 87}, "25000": {"1-step": 187, "2-step-bright": 187, "2-step-classic": 187}, "50000": {"1-step": 277, "2-step-bright": 277, "2-step-classic": 277}, "100000": {"1-step": 477, "2-step-bright": 477, "2-step-classic": 477}, "200000": {"1-step": 947, "2-step-bright": 947, "2-step-classic": 947}}, "coupons": [{"code": "RALLY30", "discount": 30, "type": "percentage", "models": ["1-step"], "verified": true}, {"code": "RALLY25", "discount": 25, "type": "percentage", "models": ["2-step-bright"], "verified": true}, {"code": "RALLY15", "discount": 15, "type": "percentage", "models": ["2-step-classic"], "verified": true}, {"code": "MATCH30", "discount": 30, "type": "percentage", "models": ["all"], "verified": true, "source": "Prop Firm Match"}], "rules": {"profitTarget": {"phase1": 8, "phase2": 5}, "maxDailyLoss": 4, "maxTotalLoss": 8, "minTradingDays": 5, "consistencyRule": "No Consistency Rules", "profitSplit": "Up to 90%", "evaluationReward": "15% Evaluation Profit Reward", "payoutRatio": "Up to 100% with Scaling"}, "platforms": ["cTrader", "MT5", "BrightFunded Platform (DxTrade)"], "instruments": ["FX", "Indices", "Metals", "Crypto", "Energy"], "addOns": [{"name": "Swap-Free", "price": "Varies by account size"}, {"name": "Weekly Payouts", "price": "Varies by account size"}, {"name": "100% Challenge Fee Refund", "price": "Varies by account size"}, {"name": "No Minimum Trading Days", "price": "Varies by account size"}, {"name": "90% Payout Ratio", "price": "Varies by account size"}], "criticalBreachRules": [{"name": "Max Daily Loss", "explanation": "Account equity or balance drops below the daily loss limit.", "threshold": "4% (typically calculated on end of day balance)", "consequence": "Hard Breach", "source": "BrightFunded Rules"}, {"name": "News Trading", "explanation": "Opening or closing trades within the 5-minute window before or after high-impact news.", "threshold": "5 Minutes", "consequence": "Profit Removed / Soft Breach", "source": "BrightFunded Rules"}]};
+
+        let state = {
+            program: rawData.programs[0].id,
+            size: rawData.accountSizes[4].toString(), // Default $100K
+            unit: 'percent' // 'percent' or 'dollar'
+        };
+
+        function init() {
+            renderPrograms();
+            renderSizes();
+            renderRules();
+            renderCoupons();
+            renderCriticalRules();
+            updateCalculators();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.dataset.theme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        }
+
+        function setProgram(id) {
+            state.program = id;
+            renderPrograms();
+            renderSizes();
+            renderRules();
+        }
+
+        function setSize(size) {
+            state.size = size.toString();
+            renderSizes();
+            renderRules();
+            updateCalculators();
+        }
+
+        function toggleUnit() {
+            state.unit = state.unit === 'percent' ? 'dollar' : 'percent';
+            document.getElementById('unit-toggle').innerText = state.unit === 'percent' ? 'Show in $' : 'Show in %';
+            renderRules();
+        }
+
+        function formatCurrency(val) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+        }
+
+        function renderPrograms() {
+            const grid = document.getElementById('program-grid');
+            grid.innerHTML = '';
+
+            rawData.programs.forEach(p => {
+                const div = document.createElement('div');
+                div.className = `card ${state.program === p.id ? 'active' : ''}`;
+                div.onclick = () => setProgram(p.id);
+                div.innerHTML = `
+                    <h3>${p.name}</h3>
+                    <p class="text-muted">${p.description}</p>
+                    <div class="mt-2">
+                        <span class="badge">${p.phases} Phase(s)</span>
+                        <span class="badge">${p.drawdownType} Drawdown</span>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderSizes() {
+            const grid = document.getElementById('size-grid');
+            grid.innerHTML = '';
+
+            rawData.accountSizes.forEach(size => {
+                const strSize = size.toString();
+                const price = rawData.prices[strSize][state.program] || 'N/A';
+
+                const div = document.createElement('div');
+                div.className = `card ${state.size === strSize ? 'active' : ''}`;
+                div.onclick = () => setSize(strSize);
+                div.innerHTML = `
+                    <h3 style="font-size: 1.8rem;">${formatCurrency(size)}</h3>
+                    <p class="text-muted">Price: &euro;${price}</p>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function renderRules() {
+            const tbody = document.getElementById('rules-table-body');
+            const sizeNum = parseInt(state.size);
+            const prog = rawData.programs.find(p => p.id === state.program);
+            const r = rawData.rules;
+
+            const formatVal = (percentVal) => {
+                if (state.unit === 'percent') return `${percentVal}%`;
+                return formatCurrency((percentVal / 100) * sizeNum);
+            };
+
+            tbody.innerHTML = `
+                <tr>
+                    <td><strong>Profit Target</strong></td>
+                    <td>${formatVal(r.profitTarget.phase1)}</td>
+                    <td>${prog.phases > 1 ? formatVal(r.profitTarget.phase2) : 'N/A'}</td>
+                    <td>N/A</td>
+                </tr>
+                <tr>
+                    <td><strong>Max Daily Loss</strong></td>
+                    <td>${formatVal(r.maxDailyLoss)}</td>
+                    <td>${prog.phases > 1 ? formatVal(r.maxDailyLoss) : 'N/A'}</td>
+                    <td>${formatVal(r.maxDailyLoss)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Max Total Loss</strong></td>
+                    <td>${formatVal(r.maxTotalLoss)}</td>
+                    <td>${prog.phases > 1 ? formatVal(r.maxTotalLoss) : 'N/A'}</td>
+                    <td>${formatVal(r.maxTotalLoss)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Minimum Trading Days</strong></td>
+                    <td>${r.minTradingDays} Days</td>
+                    <td>${prog.phases > 1 ? r.minTradingDays + ' Days' : 'N/A'}</td>
+                    <td>None</td>
+                </tr>
+            `;
+        }
+
+        function renderCoupons() {
+            const tbody = document.getElementById('coupons-table-body');
+            rawData.coupons.forEach(c => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><span class="badge" style="background-color: var(--warning); color: #000;">${c.code}</span></td>
+                        <td>${c.discount}% OFF</td>
+                        <td>${c.models.join(', ')}</td>
+                        <td><button class="btn" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="navigator.clipboard.writeText('${c.code}'); alert('Copied!')">Copy</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderCriticalRules() {
+            const container = document.querySelector('#critical-rules .grid');
+            rawData.criticalBreachRules.forEach(cr => {
+                container.innerHTML += `
+                    <div class="card">
+                        <h3>${cr.name}</h3>
+                        <p class="text-muted mb-2">${cr.explanation}</p>
+                        <p><strong>Threshold:</strong> ${cr.threshold}</p>
+                        <p><strong>Consequence:</strong> <span class="consequence-hard">${cr.consequence}</span></p>
+                    </div>
+                `;
+            });
+        }
+
+        function updateCalculators() {
+            document.getElementById('calc-start-balance').value = state.size;
+            document.getElementById('calc-current-equity').value = state.size;
+            calculateRisk();
+            calculatePayout();
+        }
+
+        function calculateRisk() {
+            const startBal = parseFloat(document.getElementById('calc-start-balance').value) || 0;
+            const currentEq = parseFloat(document.getElementById('calc-current-equity').value) || 0;
+
+            const maxLossPercent = rawData.rules.maxDailyLoss / 100;
+            const lossLimitAmount = startBal * maxLossPercent;
+            const breachLevel = startBal - lossLimitAmount;
+
+            let buffer = currentEq - breachLevel;
+            if (buffer < 0) buffer = 0;
+
+            document.getElementById('calc-daily-limit').innerText = formatCurrency(breachLevel) + ' (Floor)';
+            document.getElementById('calc-buffer').innerText = `Buffer remaining: ${formatCurrency(buffer)}`;
+
+            if (buffer === 0) {
+                document.getElementById('calc-buffer').style.color = 'var(--danger)';
+            } else {
+                document.getElementById('calc-buffer').style.color = 'var(--success)';
+            }
+        }
+
+        function calculatePayout() {
+            const profit = parseFloat(document.getElementById('calc-profit').value) || 0;
+            const split = parseFloat(document.getElementById('calc-split').value) || 80;
+
+            const traderShare = profit * (split / 100);
+            const firmShare = profit - traderShare;
+
+            document.getElementById('calc-net-payout').innerText = formatCurrency(traderShare);
+            document.getElementById('calc-firm-share').innerText = formatCurrency(firmShare);
+        }
+
+        // Run
+        init();
+    </script>
+</body>
+</html>
